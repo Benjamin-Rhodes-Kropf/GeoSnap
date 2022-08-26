@@ -216,7 +216,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8773545588173103334, guid: badac6e4c6497b147bbade9b47ba015d, type: 3}
       propertyPath: m_Name
-      value: Background
+      value: ErrorPanel
       objectReference: {fileID: 0}
     - target: {fileID: 8773545588173103353, guid: badac6e4c6497b147bbade9b47ba015d, type: 3}
       propertyPath: m_Pivot.x

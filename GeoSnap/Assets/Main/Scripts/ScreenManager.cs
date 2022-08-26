@@ -38,6 +38,8 @@ public class ScreenManager : MonoBehaviour
         }
         
         ResetMenu();
+        activeParent.gameObject.SetActive(true);
+        inactiveParent.gameObject.SetActive(false);
     }
     
     public void ChangeScreen(string ScreenID)
@@ -89,6 +91,7 @@ public class ScreenManager : MonoBehaviour
         current = screen; // set start screen
         current.ScreenObject.SetParent(startParent, false); // set current screen parent for animation
 
+        //old code
         //set screen to load in
         // ScreenAnimator.SetTrigger("Next");  // trigger animation
         // current = Screens[startScreenIndex]; // set start screen
