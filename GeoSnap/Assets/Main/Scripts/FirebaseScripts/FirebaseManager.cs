@@ -24,7 +24,9 @@ public class FirebaseManager : MonoBehaviour
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
-    [Header("UserData")] [SerializeField] private String baseUserPhotoUrl;
+    [Header("UserData")] 
+    [SerializeField] private String baseUserPhotoUrl;
+    public Texture userImageTexture;
     
     //Todo: remove this stuff variables
     //User Data variables
@@ -104,10 +106,10 @@ public class FirebaseManager : MonoBehaviour
         });
     }
     
-    
     //async client-side
     public IEnumerator TryLogin(string _email, string _password,  System.Action<String> callback)
     {
+        Debug.Log(_email + ", " + _password);
         //Call the Firebase auth signin function passing the email and password
         var LoginTask = auth.SignInWithEmailAndPasswordAsync(_email, _password);
         //Wait until the task completes
@@ -145,17 +147,23 @@ public class FirebaseManager : MonoBehaviour
         }
         else
         {
-            
-            
-            //User is now logged in
-            //Now get the result
             User = LoginTask.Result;
             Debug.LogFormat("User signed in successfully: {0} ({1})", User.DisplayName, User.Email);
             Debug.Log("logged In: user profile photo is: " + User.PhotoUrl);
-            // warningLoginText.text = "";
-            // confirmLoginText.text = "Logged In";
-            // StartCoroutine(LoadUserData());
 
+            // getUserImage
+            StartCoroutine(FirebaseManager.instance.TryLoadUserProfileImage((myReturnValue) => {
+                if (myReturnValue != null)
+                {
+                    userImageTexture = myReturnValue;
+                }
+                else
+                {
+                
+                }
+            }));
+            
+            
             yield return null;
             callback(null);
         }

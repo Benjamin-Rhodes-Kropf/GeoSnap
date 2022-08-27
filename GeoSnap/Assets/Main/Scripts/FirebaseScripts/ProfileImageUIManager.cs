@@ -24,9 +24,17 @@ public class ProfileImageUIManager : MonoBehaviour
     
     private void Awake()
     {
-        _profileImageRaw.enabled = false;
         _profileImage.sprite = profileImageOne;
     }
+    
+    public void Update()
+    {
+        if (FirebaseManager.instance.userImageTexture != null)
+        {
+            _profileImageRaw.texture = FirebaseManager.instance.userImageTexture;
+        }
+    }
+
 
     public void SelectPhotoButton()
     {
@@ -43,7 +51,6 @@ public class ProfileImageUIManager : MonoBehaviour
             _profileImage.sprite = profileImageOne;
         }
     }
-
     public void ChangeProfileName()
     {
         String name = profileName.text;
@@ -74,23 +81,4 @@ public class ProfileImageUIManager : MonoBehaviour
             }
         }));
     }
-    
-    //button
-    public void getUserImage()
-    {
-        Debug.Log("loading user image");
-        StartCoroutine(FirebaseManager.instance.TryLoadUserProfileImage((myReturnValue) => {
-            if (myReturnValue != null)
-            {
-                _profileImageRaw.enabled = true;
-                _profileImageRaw.texture = myReturnValue;
-            }
-            else
-            {
-                
-            }
-        }));
-    }
-
-    
 }
