@@ -8,6 +8,7 @@ using TMPro;
 using System.Linq;
 using Firebase.Extensions;
 using Firebase.Storage;
+using UnityEngine.UI;
 
 public class FirebaseManager : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class FirebaseManager : MonoBehaviour
     private FirebaseUser User;
     private DatabaseReference DBreference;
     private FirebaseStorage storage;
-    private StorageReference storageReference;
+    private StorageReference storageRef;
 
     //Todo: remove this stuff variables
     //User Data variables
@@ -41,7 +42,6 @@ public class FirebaseManager : MonoBehaviour
         StartCoroutine(UpdateKills(int.Parse(killsField.text)));
         StartCoroutine(UpdateDeaths(int.Parse(deathsField.text)));
     }
-    //Function for the scoreboard button
     public void ScoreboardButton()
     {        
         StartCoroutine(LoadScoreboardData());
@@ -78,7 +78,7 @@ public class FirebaseManager : MonoBehaviour
         });
         
         storage = FirebaseStorage.DefaultInstance;
-        storageReference = storage.GetReferenceFromUrl("gs://geosnapv1.appspot.com");
+        storageRef = storage.GetReferenceFromUrl("gs://geosnapv1.appspot.com");
     }
     private void InitializeFirebase()
     {
@@ -88,14 +88,12 @@ public class FirebaseManager : MonoBehaviour
         DBreference = FirebaseDatabase.DefaultInstance.RootReference;
     }
     
-    
-
     //Firebase Calls
     public void SignOut(){auth.SignOut();}
     public void DeleteFile(String _location)
     {
-        storageReference = storageReference.Child(_location);
-        storageReference.DeleteAsync().ContinueWithOnMainThread(task => {
+        storageRef = storageRef.Child(_location);
+        storageRef.DeleteAsync().ContinueWithOnMainThread(task => {
             if (task.IsCompleted) {
                 Debug.Log("File deleted successfully.");
             }
@@ -228,11 +226,6 @@ public class FirebaseManager : MonoBehaviour
                     {
                         // callback("Account Created!");
                         //Username is now set
-                        //Now return to login screen
-                        // UIManager.instance.LoginScreen();                        
-                        // warningRegisterText.text = "";
-                        // ClearRegisterFeilds();
-                        // ClearLoginFeilds();
                     }
                 }
                 //succses no issues
@@ -241,6 +234,20 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
+    //Todo: upload profile image and username
+    public IEnumerator TryChangeProfilePhoto(Image _image, System.Action<String> callback)
+    {
+        String _profilePhotoUrl = "profileUrl";
+        yield return null;
+        callback(null);
+    }
+    public IEnumerator TryChangeProfileName(string _name, System.Action<String> callback)
+    {
+        yield return null;
+        callback(null);
+    }
+    
+    //Todo: make these work with present project
     private IEnumerator UpdateUsernameAuth(string _username)
     {
         //Create a user profile and set the username
