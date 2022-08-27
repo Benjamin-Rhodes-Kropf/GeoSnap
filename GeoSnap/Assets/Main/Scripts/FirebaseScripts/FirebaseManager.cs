@@ -189,14 +189,14 @@ public class FirebaseManager : MonoBehaviour
                     case AuthError.MissingPassword:
                         message = "Missing Password";
                         break;
-                    case AuthError.WeakPassword:
-                        message = "Weak Password";
-                        break;
+                    // case AuthError.WeakPassword:
+                    //     message = "Weak Password";
+                    //     break;
                     case AuthError.EmailAlreadyInUse:
                         message = "Email Already In Use";
                         break;
                 }
-                // Debug.LogWarning(message);
+                Debug.LogWarning(message);
                 callback(message);
             }
             else
@@ -235,6 +235,8 @@ public class FirebaseManager : MonoBehaviour
                         // ClearLoginFeilds();
                     }
                 }
+                //succses no issues
+                callback(null);
             }
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,13 +8,14 @@ public class RegisterUIManager : MonoBehaviour
 {
     //Register variables
     [Header("Register")]
-    public TMP_InputField usernameRegisterField;
-    public TMP_InputField emailRegisterField;
-    public TMP_InputField passwordRegisterField;
-    public TMP_InputField passwordRegisterVerifyField;
-    public TMP_Text warningRegisterText;
-    public TMP_Text confirmRegisterText;
-    
+    [SerializeField] private TMP_InputField usernameRegisterField;
+    [SerializeField] private TMP_InputField emailRegisterField;
+    [SerializeField] private TMP_InputField passwordRegisterField;
+    [SerializeField] private TMP_InputField passwordRegisterVerifyField;
+    [SerializeField] private TMP_Text warningRegisterText;
+    [SerializeField] private TMP_Text confirmRegisterText;
+    [SerializeField] private GameObject _canvas;
+    [SerializeField] private String selectImageScreenID;
     public void ClearRegisterFeilds()
     {
         usernameRegisterField.text = "";
@@ -43,6 +45,8 @@ public class RegisterUIManager : MonoBehaviour
             {
                 warningRegisterText.text = "";
                 confirmRegisterText.text = "Confirmed, Account Created!";
+                Debug.Log("accountCreated");
+                _canvas.GetComponent<ScreenManager>().ChangeScreen(selectImageScreenID);
             }
         }));
     }
