@@ -504,7 +504,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 258273203}
   m_CullTransparentMesh: 1
---- !u!1 &314918547
+--- !u!1 &260092364
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -512,23 +512,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 314918548}
+  - component: {fileID: 260092365}
   m_Layer: 0
-  m_Name: LoginUIManager
+  m_Name: DebugManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &314918548
+--- !u!4 &260092365
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 314918547}
+  m_GameObject: {fileID: 260092364}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 133.16066, y: 295.85867, z: -2.768059}
+  m_LocalPosition: {x: 284.0121, y: 668.4662, z: -4.3247924}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -8,6 +8,7 @@ using TMPro;
 using System.Linq;
 using Firebase.Extensions;
 using Firebase.Storage;
+using Unity.VisualScripting;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
@@ -15,7 +16,7 @@ public class FirebaseManager : MonoBehaviour
 {
     public static FirebaseManager instance;
     
-    //Firebase variables
+    
     [Header("Firebase")]
     DependencyStatus dependencyStatus;
     private FirebaseAuth auth;    
@@ -27,6 +28,7 @@ public class FirebaseManager : MonoBehaviour
     [Header("UserData")] 
     [SerializeField] private String baseUserPhotoUrl;
     public Texture userImageTexture;
+    
     
     //Todo: remove this stuff variables
     //User Data variables
