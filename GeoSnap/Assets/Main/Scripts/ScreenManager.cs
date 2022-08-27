@@ -45,6 +45,7 @@ public class ScreenManager : MonoBehaviour
         UIScreen screen = ScreenFromID(ScreenID);
         if ( screen != null)
         {
+            history.Clear();
             ScreenAnimator.SetTrigger("Next"); // trigger animation
             current.ScreenObject.SetParent(startParent, false); // set current screen parent for animation
             history.Add(current); // add current screen to history
@@ -52,6 +53,22 @@ public class ScreenManager : MonoBehaviour
             screen.ScreenObject.SetParent(endParent, false); // set new screen parent for animation
         }
     }
+    
+    //Todo: Make work for more than one screen
+    public void GoBackOneScreen()
+    {
+        if (history.Count < 1) { 
+            Debug.LogWarning("historyLessThanOne");
+            return; // if first screen, ignore
+        }
+        UIScreen screen = history[history.Count - 1]; // get previous screen
+        history.Remove(history[history.Count - 1]); // remove current screen from history
+        ScreenAnimator.SetTrigger("Next"); // trigger animation
+        current.ScreenObject.SetParent(startParent, false); // set current screen parent for animation
+        current = screen; // assign old as current
+        screen.ScreenObject.SetParent(endParent, false); // set old screen parent for animation
+    }
+    
     UIScreen ScreenFromID(string ScreenID)
     {
         foreach (UIScreen screen in Screens)
@@ -97,9 +114,7 @@ public class ScreenManager : MonoBehaviour
             if (history.Count > 0)
             {
                 //Todo: get history working (look at how rqts did it)
-                // Debug.Log(history.Count);
-                // ChangeScreen(history[history.Count-1].Name);
-                // history.RemoveAt(0);
+                GoBackOneScreen();
             }
         }
     }
