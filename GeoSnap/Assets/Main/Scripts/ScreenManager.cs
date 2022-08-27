@@ -26,8 +26,7 @@ public class ScreenManager : MonoBehaviour
     // index in Screens of the first screen to be displayed
     public int startScreenIndex = 0;
     public int loadingScreenIndex = 0;
-    
-    // Start is called before the first frame update
+
     void Start()
     {
         // re-parent all screen transforms to hidden object
@@ -41,7 +40,6 @@ public class ScreenManager : MonoBehaviour
         activeParent.gameObject.SetActive(true);
         inactiveParent.gameObject.SetActive(false);
     }
-    
     public void ChangeScreen(string ScreenID)
     {
         UIScreen screen = ScreenFromID(ScreenID);
@@ -54,8 +52,6 @@ public class ScreenManager : MonoBehaviour
             screen.ScreenObject.SetParent(endParent, false); // set new screen parent for animation
         }
     }
-    
-    // find screen in list with target ID
     UIScreen ScreenFromID(string ScreenID)
     {
         foreach (UIScreen screen in Screens)
@@ -65,8 +61,6 @@ public class ScreenManager : MonoBehaviour
 
         return null;
     }
-    
-    // reparent all screens as needed
     public void SetActiveParent()
     {
         // hide inactive screens
@@ -78,9 +72,6 @@ public class ScreenManager : MonoBehaviour
         // show active screen
         current.ScreenObject.SetParent(activeParent, false);
     }
-    
-    
-    //reset
     public void ResetMenu()
     {
         // clear history
@@ -98,10 +89,19 @@ public class ScreenManager : MonoBehaviour
         // current.ScreenObject.SetParent(endParent, false); // set start screen parent for animation
     }
 
-    // Update is called once per frame
+    //backForTestMode
     void Update()
     {
-        
+        if (Input.GetKeyDown("space"))
+        {
+            if (history.Count > 0)
+            {
+                //Todo: get history working (look at how rqts did it)
+                // Debug.Log(history.Count);
+                // ChangeScreen(history[history.Count-1].Name);
+                // history.RemoveAt(0);
+            }
+        }
     }
 }
 
