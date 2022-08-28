@@ -7,7 +7,8 @@ public class CustomDebugManager : MonoBehaviour
     public static CustomDebugManager instance;
     
     [Header("Debug")]
-    [SerializeField] private bool debugMode;
+    public bool debugMode;
+    public bool showDebugButtons;
     
     [Header("Colors")]
     [SerializeField] private Color buttonBgColor;
