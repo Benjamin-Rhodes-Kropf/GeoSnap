@@ -53,20 +53,28 @@ public class ScreenManager : MonoBehaviour
             screen.ScreenObject.SetParent(endParent, false); // set new screen parent for animation
         }
     }
-    
-    //Todo: Make work for more than one screen
     public void GoBackOneScreen()
     {
+        //Todo: Make work for more than one screen
         if (history.Count < 1) { 
             Debug.LogWarning("historyLessThanOne");
             return; // if first screen, ignore
         }
         UIScreen screen = history[history.Count - 1]; // get previous screen
         history.Remove(history[history.Count - 1]); // remove current screen from history
-        ScreenAnimator.SetTrigger("Next"); // trigger animation
-        current.ScreenObject.SetParent(startParent, false); // set current screen parent for animation
-        current = screen; // assign old as current
-        screen.ScreenObject.SetParent(endParent, false); // set old screen parent for animation
+        ScreenAnimator.SetTrigger("Prev"); // trigger animation //Next
+        current.ScreenObject.SetParent(endParent, false); // set current screen parent for animation
+        current = screen; // assign new as current
+        screen.ScreenObject.SetParent(startParent, false); // set new screen parent for animation
+    }
+
+    public void Login()
+    {
+        ScreenAnimator.SetTrigger("Login"); // trigger animation //Next
+        current.ScreenObject.SetParent(endParent, false); // set current screen parent for animation
+        UIScreen screen = ScreenFromID("MapScreen");
+        screen.ScreenObject.SetParent(startParent, false); // set new screen parent for animation
+        current = screen;
     }
     
     UIScreen ScreenFromID(string ScreenID)
@@ -78,6 +86,8 @@ public class ScreenManager : MonoBehaviour
 
         return null;
     }
+    
+    //called from animation
     public void SetActiveParent()
     {
         // hide inactive screens

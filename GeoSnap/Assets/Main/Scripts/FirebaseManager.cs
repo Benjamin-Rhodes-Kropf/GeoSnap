@@ -29,7 +29,6 @@ public class FirebaseManager : MonoBehaviour
     [SerializeField] private String baseUserPhotoUrl;
     public Texture userImageTexture;
     
-    
     //Todo: remove this stuff variables
     //User Data variables
     [Header("UserData")]
@@ -68,6 +67,7 @@ public class FirebaseManager : MonoBehaviour
 
         
         //Check that all of the necessary dependencies for Firebase are present on the system
+        Debug.Log("Initializing Firebase");
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             dependencyStatus = task.Result;
@@ -75,6 +75,7 @@ public class FirebaseManager : MonoBehaviour
             {
                 //If they are avalible Initialize Firebase
                 InitializeFirebase();
+                Debug.Log("Firebase Initialization Complete");
             }
             else
             {
@@ -87,7 +88,6 @@ public class FirebaseManager : MonoBehaviour
     }
     private void InitializeFirebase()
     {
-        Debug.Log("Setting up Firebase Auth");
         //Set the authentication instance object
         auth = FirebaseAuth.DefaultInstance;
         DBreference = FirebaseDatabase.DefaultInstance.RootReference;

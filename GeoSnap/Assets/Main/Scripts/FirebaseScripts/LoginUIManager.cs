@@ -11,6 +11,7 @@ public class LoginUIManager : MonoBehaviour
     public TMP_InputField passwordLoginField;
     public TMP_Text warningLoginText;
     public TMP_Text confirmLoginText;
+    [SerializeField] private GameObject _screenManager;
     
     public void ClearLoginFeilds()
     {
@@ -33,6 +34,7 @@ public class LoginUIManager : MonoBehaviour
             {
                 warningLoginText.text = "";
                 confirmLoginText.text = "Confirmed, Your In!";
+                _screenManager.GetComponent<ScreenManager>().Login();
             }
         }));
     }
