@@ -53,6 +53,8 @@ public class ScreenManager : MonoBehaviour
     {
         currentPopUp = PopupFromID(PopUpID);
         currentPopUp.ScreenObject.SetParent(PopUpParent);
+        ScreenAnimator.SetTrigger("PopIn"); // trigger animation
+
     }
     public void ClosePopup()
     {
