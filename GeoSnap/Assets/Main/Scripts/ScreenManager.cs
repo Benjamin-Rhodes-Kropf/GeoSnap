@@ -10,6 +10,7 @@ public class ScreenManager : MonoBehaviour
     public Animator ScreenAnimator;
 
     // containers for currently displayed screen and hidden screens
+    public Transform PopUpParent;
     public Transform activeParent;
     public Transform inactiveParent;
     
@@ -23,6 +24,7 @@ public class ScreenManager : MonoBehaviour
 
     public List<UIScreen> history;
     UIScreen current;
+    UIScreen currentPopUp;
 
     // index in Screens of the first screen to be displayed
     public int startScreenIndex = 0;
@@ -36,19 +38,25 @@ public class ScreenManager : MonoBehaviour
             s.ScreenObject.gameObject.SetActive(true);
             s.ScreenObject.transform.SetParent(inactiveParent, false);
         }
+        foreach(var s in PopUpScreen)
+        {
+            s.ScreenObject.gameObject.SetActive(true);
+            s.ScreenObject.transform.SetParent(inactiveParent, false);
+        }
         
         ResetMenu();
         activeParent.gameObject.SetActive(true);
         inactiveParent.gameObject.SetActive(false);
     }
 
-    public void PopupScreen()
+    public void PopupScreen(string PopUpID)
     {
-        
+        currentPopUp = PopupFromID(PopUpID);
+        currentPopUp.ScreenObject.SetParent(PopUpParent);
     }
     public void ClosePopup()
     {
-        
+        ScreenAnimator.SetTrigger("PopOut"); // trigger animation
     }
     
     public void ChangeScreen(string ScreenID)
@@ -97,6 +105,15 @@ public class ScreenManager : MonoBehaviour
 
         return null;
     }
+    UIScreen PopupFromID(string ScreenID)
+    {
+        foreach (UIScreen screen in PopUpScreen)
+        {
+            if (screen.Name == ScreenID) return screen;
+        }
+
+        return null;
+    }
     
     //called from animation
     public void SetActiveParent()
@@ -109,6 +126,14 @@ public class ScreenManager : MonoBehaviour
 
         // show active screen
         current.ScreenObject.SetParent(activeParent, false);
+    }
+    public void ClearAllPopups()
+    {
+        // hide inactive screens
+        foreach (var p in PopUpScreen)
+        {
+            p.ScreenObject.SetParent(inactiveParent, false);
+        }
     }
     public void ResetMenu()
     {
