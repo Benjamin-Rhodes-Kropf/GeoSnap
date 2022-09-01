@@ -19,6 +19,7 @@ public class ScreenManager : MonoBehaviour
     
     // screens to be dislayed
     public UIScreen[] Screens;
+    public UIScreen[] PopUpScreen;
 
     public List<UIScreen> history;
     UIScreen current;
@@ -40,6 +41,16 @@ public class ScreenManager : MonoBehaviour
         activeParent.gameObject.SetActive(true);
         inactiveParent.gameObject.SetActive(false);
     }
+
+    public void PopupScreen()
+    {
+        
+    }
+    public void ClosePopup()
+    {
+        
+    }
+    
     public void ChangeScreen(string ScreenID)
     {
         UIScreen screen = ScreenFromID(ScreenID);

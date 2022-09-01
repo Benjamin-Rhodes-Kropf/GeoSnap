@@ -16,14 +16,16 @@ public class FirebaseManager : MonoBehaviour
 {
     public static FirebaseManager instance;
     
-    
-    [Header("Firebase")]
-    DependencyStatus dependencyStatus;
+    //Firebase Refrences
+    private DependencyStatus dependencyStatus;
     private FirebaseAuth auth;    
     private FirebaseUser User;
     private DatabaseReference DBreference;
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    
+    [Header("Firebase")]
+    [SerializeField] private String _storageReferenceUrl;
 
     [Header("UserData")] 
     [SerializeField] private String baseUserPhotoUrl;
@@ -67,7 +69,7 @@ public class FirebaseManager : MonoBehaviour
 
         
         //Check that all of the necessary dependencies for Firebase are present on the system
-        Debug.Log("Initializing Firebase");
+        Debug.Log("Initializing Firebase...");
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             dependencyStatus = task.Result;
@@ -75,7 +77,7 @@ public class FirebaseManager : MonoBehaviour
             {
                 //If they are avalible Initialize Firebase
                 InitializeFirebase();
-                Debug.Log("Firebase Initialization Complete");
+                Debug.Log("Firebase Initialization Complete!");
             }
             else
             {
@@ -84,7 +86,10 @@ public class FirebaseManager : MonoBehaviour
         });
         
         storage = FirebaseStorage.DefaultInstance;
-        storageRef = storage.GetReferenceFromUrl("gs://geosnapv1.appspot.com");
+        storageRef = storage.GetReferenceFromUrl(_storageReferenceUrl);
+
+        //storageRef = storage.GetReferenceFromUrl("gs://geosnapv1.appspot.com");
+        //_storageReferenceUrl
     }
     private void InitializeFirebase()
     {
