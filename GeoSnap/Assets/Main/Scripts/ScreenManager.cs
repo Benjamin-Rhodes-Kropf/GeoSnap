@@ -7,29 +7,26 @@ using UnityEngine.UI;
 public class ScreenManager : MonoBehaviour
 {
     // animator that controls transitions, requires next and prev triggers
-    public Animator ScreenAnimator;
+    [SerializeField] private Animator ScreenAnimator;
 
     // containers for currently displayed screen and hidden screens
-    public Transform PopUpParent;
-    public Transform activeParent;
-    public Transform inactiveParent;
+    [SerializeField] private Transform PopUpParent;
+    [SerializeField] private Transform activeParent;
+    [SerializeField] private Transform inactiveParent;
     
     // containers for animating screens
-    public Transform startParent;
-    public Transform endParent;
+    [SerializeField] private Transform startParent;
+    [SerializeField] private Transform endParent;
     
     // screens to be dislayed
-    public UIScreen[] Screens;
-    public UIScreen[] PopUpScreen;
+    [SerializeField] private UIScreen[] Screens;
+    [SerializeField] private UIScreen[] PopUpScreen;
 
-    public List<UIScreen> history;
-    UIScreen current;
-    UIScreen currentPopUp;
+    [SerializeField] private List<UIScreen> history;
+    [SerializeField] private UIScreen current;
+    [SerializeField] private UIScreen currentPopUp;
 
-    // index in Screens of the first screen to be displayed
-    public int startScreenIndex = 0;
-    public int loadingScreenIndex = 0;
-
+    //setup screens
     void Start()
     {
         // re-parent all screen transforms to hidden object
@@ -48,14 +45,22 @@ public class ScreenManager : MonoBehaviour
         activeParent.gameObject.SetActive(true);
         inactiveParent.gameObject.SetActive(false);
     }
-
+    public void Login()
+    {
+        ScreenAnimator.SetTrigger("Login"); // trigger animation //Next
+        current.ScreenObject.SetParent(endParent, false); // set current screen parent for animation
+        UIScreen screen = ScreenFromID("MapScreen");
+        screen.ScreenObject.SetParent(startParent, false); // set new screen parent for animation
+        current = screen;
+    }
+    
+    //menu animation controls
     public void PopupScreen(string PopUpID)
     {
         currentPopUp = PopupFromID(PopUpID);
         currentPopUp.ScreenObject.SetParent(PopUpParent);
         ScreenAnimator.SetTrigger("PopIn"); // trigger animation
-
-    }
+    } 
     public void ClosePopup()
     {
         ScreenAnimator.SetTrigger("PopOut"); // trigger animation
@@ -74,7 +79,7 @@ public class ScreenManager : MonoBehaviour
             screen.ScreenObject.SetParent(endParent, false); // set new screen parent for animation
         }
     }
-    public void GoBackOneScreen()
+    public void GoBackScreen()
     {
         //Todo: Make work for more than one screen
         if (history.Count < 1) { 
@@ -89,15 +94,10 @@ public class ScreenManager : MonoBehaviour
         screen.ScreenObject.SetParent(startParent, false); // set new screen parent for animation
     }
 
-    public void Login()
-    {
-        ScreenAnimator.SetTrigger("Login"); // trigger animation //Next
-        current.ScreenObject.SetParent(endParent, false); // set current screen parent for animation
-        UIScreen screen = ScreenFromID("MapScreen");
-        screen.ScreenObject.SetParent(startParent, false); // set new screen parent for animation
-        current = screen;
-    }
     
+    
+    
+    //get IDs
     UIScreen ScreenFromID(string ScreenID)
     {
         foreach (UIScreen screen in Screens)
@@ -117,10 +117,9 @@ public class ScreenManager : MonoBehaviour
         return null;
     }
     
-    //called from animation
+    //functions called from animation
     public void SetActiveParent()
     {
-        // hide inactive screens
         foreach (var s in Screens)
         {
             if (s != current) s.ScreenObject.SetParent(inactiveParent, false);
@@ -131,7 +130,6 @@ public class ScreenManager : MonoBehaviour
     }
     public void ClearAllPopups()
     {
-        // hide inactive screens
         foreach (var p in PopUpScreen)
         {
             p.ScreenObject.SetParent(inactiveParent, false);
@@ -154,15 +152,17 @@ public class ScreenManager : MonoBehaviour
         // current.ScreenObject.SetParent(endParent, false); // set start screen parent for animation
     }
 
-    //backForTestMode
+    
+    //Todo: remove in production
     void Update()
     {
+        //backForTestMode
         if (Input.GetKeyDown("space"))
         {
             if (history.Count > 0)
             {
                 //Todo: get history working (look at how rqts did it)
-                GoBackOneScreen();
+                GoBackScreen();
             }
         }
     }
