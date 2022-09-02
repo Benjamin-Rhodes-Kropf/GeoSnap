@@ -27,6 +27,9 @@ public class FirebaseManager : MonoBehaviour
     [Header("Firebase")]
     [SerializeField] private String _storageReferenceUrl;
 
+    [Header("ScreenManager")] 
+    [SerializeField] private ScreenManager _screenManager;
+    
     [Header("UserData")] 
     [SerializeField] private String baseUserPhotoUrl;
     public Texture userImageTexture;
@@ -38,7 +41,6 @@ public class FirebaseManager : MonoBehaviour
     public TMP_InputField xpField;
     public TMP_InputField killsField;
     public TMP_InputField deathsField;
-    public GameObject scoreElement;
     public Transform scoreboardContent;
     public void SaveDataButton()
     {
@@ -87,9 +89,7 @@ public class FirebaseManager : MonoBehaviour
         
         storage = FirebaseStorage.DefaultInstance;
         storageRef = storage.GetReferenceFromUrl(_storageReferenceUrl);
-
-        //storageRef = storage.GetReferenceFromUrl("gs://geosnapv1.appspot.com");
-        //_storageReferenceUrl
+        CheckLogin();
     }
     private void InitializeFirebase()
     {
@@ -97,9 +97,38 @@ public class FirebaseManager : MonoBehaviour
         auth = FirebaseAuth.DefaultInstance;
         DBreference = FirebaseDatabase.DefaultInstance.RootReference;
     }
-    
+
+    private void CheckLogin()
+    {
+        String username = PlayerPrefs.GetString("Username");
+        String password = PlayerPrefs.GetString("Password");
+        if (username != null && password != null)
+        {
+            Debug.Log("auto logging in");
+            StartCoroutine(FirebaseManager.instance.TryLogin(username, password, (myReturnValue) => {
+                if (myReturnValue != null)
+                {
+                    //confirmLoginText.text = "";
+                    //warningLoginText.text = myReturnValue;
+                }
+                else
+                {
+                    //warningLoginText.text = "";
+                    //confirmLoginText.text = "Confirmed, Your In!";
+                    _screenManager.GetComponent<ScreenManager>().Login();
+                }
+            }));
+        }
+        //PlayerPrefs.SetString("username","John Doe");
+        
+    }
     //Firebase Calls
-    public void SignOut(){auth.SignOut();}
+    public void SignOut()
+    {
+        PlayerPrefs.SetString("Username", null);
+        PlayerPrefs.SetString("Password", null);
+        auth.SignOut();
+    }
     public void DeleteFile(String _location)
     {
         storageRef = storageRef.Child(_location);
@@ -170,6 +199,10 @@ public class FirebaseManager : MonoBehaviour
                 }
             }));
             
+            //stay logged in
+            PlayerPrefs.SetString("Username", _email);
+            PlayerPrefs.SetString("Password", _password);
+            PlayerPrefs.Save();
             
             yield return null;
             callback(null);
@@ -547,9 +580,6 @@ public class FirebaseManager : MonoBehaviour
                 int deaths = int.Parse(childSnapshot.Child("deaths").Value.ToString());
                 int xp = int.Parse(childSnapshot.Child("xp").Value.ToString());
 
-                //Instantiate new scoreboard elements
-                GameObject scoreboardElement = Instantiate(scoreElement, scoreboardContent);
-                scoreboardElement.GetComponent<ScoreElement>().NewScoreElement(username, kills, deaths, xp);
             }
 
             //Go to scoareboard screen
