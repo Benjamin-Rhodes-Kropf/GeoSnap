@@ -89,8 +89,13 @@ public class FirebaseManager : MonoBehaviour
         
         storage = FirebaseStorage.DefaultInstance;
         storageRef = storage.GetReferenceFromUrl(_storageReferenceUrl);
-        CheckLogin();
     }
+
+    private void Start()
+    {
+        StartCoroutine(TryAutoLogin());
+    }
+
     private void InitializeFirebase()
     {
         //Set the authentication instance object
@@ -98,35 +103,11 @@ public class FirebaseManager : MonoBehaviour
         DBreference = FirebaseDatabase.DefaultInstance.RootReference;
     }
 
-    private void CheckLogin()
-    {
-        String username = PlayerPrefs.GetString("Username");
-        String password = PlayerPrefs.GetString("Password");
-        if (username != null && password != null)
-        {
-            Debug.Log("auto logging in");
-            StartCoroutine(FirebaseManager.instance.TryLogin(username, password, (myReturnValue) => {
-                if (myReturnValue != null)
-                {
-                    //confirmLoginText.text = "";
-                    //warningLoginText.text = myReturnValue;
-                }
-                else
-                {
-                    //warningLoginText.text = "";
-                    //confirmLoginText.text = "Confirmed, Your In!";
-                    _screenManager.GetComponent<ScreenManager>().Login();
-                }
-            }));
-        }
-        //PlayerPrefs.SetString("username","John Doe");
-        
-    }
-    //Firebase Calls
+    
     public void SignOut()
     {
-        PlayerPrefs.SetString("Username", null);
-        PlayerPrefs.SetString("Password", null);
+        PlayerPrefs.SetString("Username", "null");
+        PlayerPrefs.SetString("Password", "null");
         auth.SignOut();
     }
     public void DeleteFile(String _location)
@@ -143,6 +124,35 @@ public class FirebaseManager : MonoBehaviour
     }
     
     //async client-side
+    private IEnumerator TryAutoLogin()
+    {
+        yield return new WaitForSeconds(0.2f);
+        String username = PlayerPrefs.GetString("Username");
+        String password = PlayerPrefs.GetString("Password");
+        if (username != "null" && password != "null")
+        {
+            Debug.Log("auto logging in");
+            StartCoroutine(FirebaseManager.instance.TryLogin(username, password, (myReturnValue) => {
+                if (myReturnValue != null)
+                {
+                    //confirmLoginText.text = "";
+                    //warningLoginText.text = myReturnValue;
+                }
+                else
+                {
+                    //warningLoginText.text = "";
+                    //confirmLoginText.text = "Confirmed, Your In!";
+                    _screenManager.GetComponent<ScreenManager>().Login();
+                }
+            }));
+        }
+        else
+        {
+            Debug.Log("change screen");
+            _screenManager.ChangeScreen("LoginScreen");
+        }
+        //PlayerPrefs.SetString("username","John Doe");
+    }
     public IEnumerator TryLogin(string _email, string _password,  System.Action<String> callback)
     {
         Debug.Log(_email + ", " + _password);
