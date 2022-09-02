@@ -123,9 +123,10 @@ public class FirebaseManager : MonoBehaviour
         });
     }
     
-    //async client-side
+
     private IEnumerator TryAutoLogin()
     {
+        //Todo: figure out which wait until to use
         yield return new WaitForSeconds(0.2f);
         String username = PlayerPrefs.GetString("Username");
         String password = PlayerPrefs.GetString("Password");
@@ -135,13 +136,11 @@ public class FirebaseManager : MonoBehaviour
             StartCoroutine(FirebaseManager.instance.TryLogin(username, password, (myReturnValue) => {
                 if (myReturnValue != null)
                 {
-                    //confirmLoginText.text = "";
-                    //warningLoginText.text = myReturnValue;
+                    
                 }
                 else
                 {
-                    //warningLoginText.text = "";
-                    //confirmLoginText.text = "Confirmed, Your In!";
+                    //succses
                     _screenManager.GetComponent<ScreenManager>().Login();
                 }
             }));
@@ -149,7 +148,7 @@ public class FirebaseManager : MonoBehaviour
         else
         {
             Debug.Log("change screen");
-            _screenManager.ChangeScreen("LoginScreen");
+            _screenManager.ChangeScreen("LockScreenHome");
         }
         //PlayerPrefs.SetString("username","John Doe");
     }
