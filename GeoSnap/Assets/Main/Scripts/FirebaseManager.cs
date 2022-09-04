@@ -17,12 +17,12 @@ public class FirebaseManager : MonoBehaviour
     public static FirebaseManager instance;
     
     //Firebase Refrences
-    private DependencyStatus dependencyStatus;
-    private FirebaseAuth auth;    
-    private FirebaseUser User;
-    private DatabaseReference DBreference;
-    private FirebaseStorage storage;
-    private StorageReference storageRef;
+    public DependencyStatus dependencyStatus;
+    public FirebaseAuth auth;    
+    public FirebaseUser User;
+    public DatabaseReference DBreference;
+    public FirebaseStorage storage;
+    public StorageReference storageRef;
     
     [Header("Firebase")]
     [SerializeField] private String _storageReferenceUrl;
@@ -34,33 +34,12 @@ public class FirebaseManager : MonoBehaviour
     [SerializeField] private String baseUserPhotoUrl;
     public Texture userImageTexture;
     
-    //Todo: remove this stuff variables
-    //User Data variables
-    [Header("UserData")]
-    public TMP_InputField usernameField;
-    public TMP_InputField xpField;
-    public TMP_InputField killsField;
-    public TMP_InputField deathsField;
-    public Transform scoreboardContent;
-    public void SaveDataButton()
-    {
-        // StartCoroutine(TryUpdateUsernameAuth(usernameField.text));
-        // StartCoroutine(TryUpdateUsernameDatabase(usernameField.text));
-        StartCoroutine(UpdateXp(int.Parse(xpField.text)));
-        StartCoroutine(UpdateKills(int.Parse(killsField.text)));
-        StartCoroutine(UpdateDeaths(int.Parse(deathsField.text)));
-    }
-    public void ScoreboardButton()
-    {        
-        StartCoroutine(LoadScoreboardData());
-    }
-    //--------------------------
     
     
     //initializer
     void Awake()
     {
-        //singleton
+        //singleton stuff
         if (instance != null)
         {
             Destroy(gameObject);
@@ -71,18 +50,22 @@ public class FirebaseManager : MonoBehaviour
 
         
         //Check that all of the necessary dependencies for Firebase are present on the system
-        Debug.Log("Initializing Firebase...");
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             dependencyStatus = task.Result;
             if (dependencyStatus == DependencyStatus.Available)
             {
-                //If they are avalible Initialize Firebase
+                Debug.Log("Initializating Firebase...");
+                Debug.Log("Initializating Firebase...");
+                Debug.Log("Initializating Firebase...");
+                Debug.Log("Initializating Firebase...");
+                Debug.Log("Initializating Firebase...");
                 InitializeFirebase();
                 Debug.Log("Firebase Initialization Complete!");
             }
             else
             {
+                InitializeFirebase();
                 Debug.LogError("Could not resolve all Firebase dependencies: " + dependencyStatus);
             }
         });
@@ -102,6 +85,7 @@ public class FirebaseManager : MonoBehaviour
         auth = FirebaseAuth.DefaultInstance;
         DBreference = FirebaseDatabase.DefaultInstance.RootReference;
     }
+    
 
     
     public void SignOut()
@@ -127,7 +111,7 @@ public class FirebaseManager : MonoBehaviour
     private IEnumerator TryAutoLogin()
     {
         //Todo: figure out which wait until to use
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.4f);
         String username = PlayerPrefs.GetString("Username");
         String password = PlayerPrefs.GetString("Password");
         if (username != "null" && password != "null")
@@ -154,7 +138,6 @@ public class FirebaseManager : MonoBehaviour
     }
     public IEnumerator TryLogin(string _email, string _password,  System.Action<String> callback)
     {
-        Debug.Log(_email + ", " + _password);
         //Call the Firebase auth signin function passing the email and password
         var LoginTask = auth.SignInWithEmailAndPasswordAsync(_email, _password);
         //Wait until the task completes
@@ -476,60 +459,6 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    
-    
-    
-    
-    //Todo: make these work with present project
-    private IEnumerator UpdateXp(int _xp)
-    {
-        //Set the currently logged in user xp
-        var DBTask = DBreference.Child("users").Child(User.UserId).Child("xp").SetValueAsync(_xp);
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
-        }
-        else
-        {
-            //Xp is now updated
-        }
-    }
-    private IEnumerator UpdateKills(int _kills)
-    {
-        //Set the currently logged in user kills
-        var DBTask = DBreference.Child("users").Child(User.UserId).Child("kills").SetValueAsync(_kills);
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
-        }
-        else
-        {
-            //Kills are now updated
-        }
-    }
-    private IEnumerator UpdateDeaths(int _deaths)
-    {
-        //Set the currently logged in user deaths
-        var DBTask = DBreference.Child("users").Child(User.UserId).Child("deaths").SetValueAsync(_deaths);
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
-        }
-        else
-        {
-            //Deaths are now updated
-        }
-    }
-
     private IEnumerator LoadUserData()
     {
         //Get the currently logged in user data
@@ -544,9 +473,7 @@ public class FirebaseManager : MonoBehaviour
         else if (DBTask.Result.Value == null)
         {
             //No data exists yet
-            xpField.text = "0";
-            killsField.text = "0";
-            deathsField.text = "0";
+            
         }
         else
         {
@@ -559,40 +486,5 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    private IEnumerator LoadScoreboardData()
-    {
-        //Get all the users data ordered by kills amount
-        var DBTask = DBreference.Child("users").OrderByChild("kills").GetValueAsync();
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
-        }
-        else
-        {
-            //Data has been retrieved
-            DataSnapshot snapshot = DBTask.Result;
-
-            //Destroy any existing scoreboard elements
-            foreach (Transform child in scoreboardContent.transform)
-            {
-                Destroy(child.gameObject);
-            }
-
-            //Loop through every users UID
-            foreach (DataSnapshot childSnapshot in snapshot.Children.Reverse<DataSnapshot>())
-            {
-                string username = childSnapshot.Child("username").Value.ToString();
-                int kills = int.Parse(childSnapshot.Child("kills").Value.ToString());
-                int deaths = int.Parse(childSnapshot.Child("deaths").Value.ToString());
-                int xp = int.Parse(childSnapshot.Child("xp").Value.ToString());
-
-            }
-
-            //Go to scoareboard screen
-            // UIManager.instance.ScoreboardScreen();
-        }
-    }
+    
 }
