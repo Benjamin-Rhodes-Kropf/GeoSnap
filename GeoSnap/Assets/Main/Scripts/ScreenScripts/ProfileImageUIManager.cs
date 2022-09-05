@@ -54,7 +54,7 @@ public class ProfileImageUIManager : MonoBehaviour
     public void ChangeProfileName()
     {
         String name = profileName.text;
-        StartCoroutine(FirebaseManager.instance.TryUpdateUsernameDatabase(name, (myReturnValue) =>
+        StartCoroutine(FirebaseManager.instance.TryUpdateUserNickName(name, (myReturnValue) =>
         {
             if (myReturnValue != null)
             {

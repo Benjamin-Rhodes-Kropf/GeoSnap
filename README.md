@@ -43,7 +43,14 @@
 0.1.7
 -updated read file to track progress
 
+0.1.8
+-fixed logout button to go to 'LockScreenHome' screen
+-Refactored Firebase Manager
+-moved screen manager scripts into separate folder
+
 TO DO:
+-make better looking validation (highlight box ahd give message)
+-fix text box font and type
 -fix firebase loading error
 -fully build out color manager
 -change dependancies json so that the project works on download without manual import

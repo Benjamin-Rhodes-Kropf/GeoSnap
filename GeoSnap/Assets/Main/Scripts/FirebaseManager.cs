@@ -16,13 +16,13 @@ public class FirebaseManager : MonoBehaviour
 {
     public static FirebaseManager instance;
     
-    //Firebase Refrences
-    public DependencyStatus dependencyStatus;
-    public FirebaseAuth auth;    
-    public FirebaseUser User;
-    public DatabaseReference DBreference;
-    public FirebaseStorage storage;
-    public StorageReference storageRef;
+    //Firebase References
+    private DependencyStatus dependencyStatus;
+    private FirebaseAuth auth;    
+    private FirebaseUser User;
+    private DatabaseReference DBref;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
     
     [Header("Firebase")]
     [SerializeField] private String _storageReferenceUrl;
@@ -31,23 +31,20 @@ public class FirebaseManager : MonoBehaviour
     [SerializeField] private ScreenManager _screenManager;
     
     [Header("UserData")] 
-    [SerializeField] private String baseUserPhotoUrl;
+    [SerializeField] private String _baseUserPhotoUrl = "https://randomuser.me/api/portraits/men/95.jpg";
     public Texture userImageTexture;
-    
     
     
     //initializer
     void Awake()
     {
-        //singleton stuff
         if (instance != null)
-        {
-            Destroy(gameObject);
-
-        }
+        {Destroy(gameObject);}
         instance = this;
         DontDestroyOnLoad(this.gameObject);
 
+        storage = FirebaseStorage.DefaultInstance;
+        storageRef = storage.GetReferenceFromUrl(_storageReferenceUrl);
         
         //Check that all of the necessary dependencies for Firebase are present on the system
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
@@ -55,92 +52,54 @@ public class FirebaseManager : MonoBehaviour
             dependencyStatus = task.Result;
             if (dependencyStatus == DependencyStatus.Available)
             {
-                Debug.Log("Initializating Firebase...");
-                Debug.Log("Initializating Firebase...");
-                Debug.Log("Initializating Firebase...");
-                Debug.Log("Initializating Firebase...");
-                Debug.Log("Initializating Firebase...");
                 InitializeFirebase();
-                Debug.Log("Firebase Initialization Complete!");
             }
             else
             {
-                InitializeFirebase();
                 Debug.LogError("Could not resolve all Firebase dependencies: " + dependencyStatus);
             }
         });
-        
-        storage = FirebaseStorage.DefaultInstance;
-        storageRef = storage.GetReferenceFromUrl(_storageReferenceUrl);
     }
-
-    private void Start()
-    {
-        StartCoroutine(TryAutoLogin());
-    }
-
     private void InitializeFirebase()
     {
         //Set the authentication instance object
         auth = FirebaseAuth.DefaultInstance;
-        DBreference = FirebaseDatabase.DefaultInstance.RootReference;
+        DBref = FirebaseDatabase.DefaultInstance.RootReference;
     }
-    
-
-    
-    public void SignOut()
+    private void Start()
     {
-        PlayerPrefs.SetString("Username", "null");
-        PlayerPrefs.SetString("Password", "null");
-        auth.SignOut();
+        StartCoroutine(TryAutoLogin());
     }
-    public void DeleteFile(String _location)
-    {
-        storageRef = storageRef.Child(_location);
-        storageRef.DeleteAsync().ContinueWithOnMainThread(task => {
-            if (task.IsCompleted) {
-                Debug.Log("File deleted successfully.");
-            }
-            else {
-                // Uh-oh, an error occurred!
-            }
-        });
-    }
-    
-
     private IEnumerator TryAutoLogin()
     {
-        //Todo: figure out which wait until to use
-        yield return new WaitForSeconds(0.4f);
-        String username = PlayerPrefs.GetString("Username");
-        String password = PlayerPrefs.GetString("Password");
-        if (username != "null" && password != "null")
+        //Todo: figure out which wait until to use...
+        yield return new WaitForSeconds(0.4f); //has to wait until firebase async task is finished... (is there something better?)
+        String savedUsername = PlayerPrefs.GetString("Username");
+        String savedPassword = PlayerPrefs.GetString("Password");
+        if (savedUsername != "null" && savedPassword != "null")
         {
             Debug.Log("auto logging in");
-            StartCoroutine(FirebaseManager.instance.TryLogin(username, password, (myReturnValue) => {
+            StartCoroutine(FirebaseManager.instance.TryLogin(savedUsername, savedPassword, (myReturnValue) => {
                 if (myReturnValue != null)
                 {
-                    
+                    Debug.LogError("failed to autoLogin");
                 }
                 else
                 {
-                    //succses
                     _screenManager.GetComponent<ScreenManager>().Login();
                 }
             }));
         }
         else
         {
-            Debug.Log("change screen");
+            Debug.Log("changing page to login options screen");
             _screenManager.ChangeScreen("LockScreenHome");
         }
-        //PlayerPrefs.SetString("username","John Doe");
     }
     public IEnumerator TryLogin(string _email, string _password,  System.Action<String> callback)
     {
         //Call the Firebase auth signin function passing the email and password
         var LoginTask = auth.SignInWithEmailAndPasswordAsync(_email, _password);
-        //Wait until the task completes
         yield return new WaitUntil(predicate: () => LoginTask.IsCompleted);
 
         if (LoginTask.Exception != null)
@@ -149,7 +108,6 @@ public class FirebaseManager : MonoBehaviour
             Debug.LogWarning(message: $"Failed to register task with {LoginTask.Exception}");
             FirebaseException firebaseEx = LoginTask.Exception.GetBaseException() as FirebaseException;
             AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
-
             string message = "Login Failed!";
             switch (errorCode)
             {
@@ -169,25 +127,19 @@ public class FirebaseManager : MonoBehaviour
                     message = "Account does not exist";
                     break;
             }
-            // warningLoginText.text = message;
-            // Debug.LogWarning(message);
-            callback(message);
+            callback(message); //return errors
         }
         else
         {
             User = LoginTask.Result;
             Debug.LogFormat("User signed in successfully: {0} ({1})", User.DisplayName, User.Email);
             Debug.Log("logged In: user profile photo is: " + User.PhotoUrl);
-
-            // getUserImage
+            
+            //Load User Profile Texture
             StartCoroutine(FirebaseManager.instance.TryLoadUserProfileImage((myReturnValue) => {
                 if (myReturnValue != null)
                 {
                     userImageTexture = myReturnValue;
-                }
-                else
-                {
-                
                 }
             }));
             
@@ -319,26 +271,20 @@ public class FirebaseManager : MonoBehaviour
             }
         }
     }
-    public IEnumerator TryUpdateUsernameDatabase(string _name, System.Action<String> callback)
+    public IEnumerator TryUpdateUserNickName(string _nickName, System.Action<String> callback)
     {
-        Debug.Log("trying to update username database");
-        //Set the currently logged in user username in the database
-        var DBTask = DBreference.Child("users").Child(User.UserId).Child("username").SetValueAsync(_name);
+        //Set the currently logged in user nickName in the database
+        var DBTask = DBref.Child("users").Child(User.UserId).Child("nickName").SetValueAsync(_nickName);
         
-        Debug.Log("trying to update username database");
-    
         yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-        Debug.Log("trying to update username database");
-    
+
         if (DBTask.Exception != null)
         {
             Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
         }
         else
         {
-            Debug.Log("updated username database");
-    
-            //Database username is now updated
+            callback("successfully updated nickName");
         }
     }
     public IEnumerator TryUpdateProfilePhoto(Image _image, System.Action<String> callback)
@@ -351,7 +297,7 @@ public class FirebaseManager : MonoBehaviour
             Firebase.Auth.UserProfile profile = new Firebase.Auth.UserProfile
             {
                 DisplayName = user.DisplayName,
-                PhotoUrl = new System.Uri("https://randomuser.me/api/portraits/men/95.jpg")
+                PhotoUrl = new System.Uri(_baseUserPhotoUrl)
             };
             user.UpdateUserProfileAsync(profile).ContinueWith(task =>
             {
@@ -382,9 +328,49 @@ public class FirebaseManager : MonoBehaviour
             callback(_profilePhotoUrl);
         }
     }
-    public IEnumerator TryLoadUserProfileImage(System.Action<Texture> callback)
+    private IEnumerator TryLoadUserProfileImage(System.Action<Texture> callback)
     {
         UnityWebRequest request = UnityWebRequestTexture.GetTexture(User.PhotoUrl); //Create a request
+        yield return request.SendWebRequest(); //Wait for the request to complete
+        if (request.isNetworkError || request.isHttpError)
+        {
+            Debug.LogWarning(request.error);
+        }
+        else
+        {
+            callback(((DownloadHandlerTexture)request.downloadHandler).texture);
+        }
+    }
+    public void SignOut()
+    {
+        PlayerPrefs.SetString("Username", "null");
+        PlayerPrefs.SetString("Password", "null");
+        auth.SignOut();
+    }
+    
+    //NOT USED YET (work in progress)
+    private IEnumerator TryUpdateUsernameAuth(string _username)
+    {
+        //Create a user profile and set the username
+        UserProfile profile = new UserProfile { DisplayName = _username }; //Todo: add other user data that shouldn't be changed
+    
+        //Call the Firebase auth update user profile function passing the profile with the username
+        var ProfileTask = User.UpdateUserProfileAsync(profile);
+        //Wait until the task completes
+        yield return new WaitUntil(predicate: () => ProfileTask.IsCompleted);
+    
+        if (ProfileTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {ProfileTask.Exception}");
+        }
+        else
+        {
+            //Auth username is now updated
+        }        
+    }
+    private IEnumerator TryLoadImage(string MediaUrl, System.Action<Texture> callback)
+    {
+        UnityWebRequest request = UnityWebRequestTexture.GetTexture(MediaUrl); //Create a request
         yield return request.SendWebRequest(); //Wait for the request to complete
         if (request.isNetworkError || request.isHttpError)
         {
@@ -395,55 +381,6 @@ public class FirebaseManager : MonoBehaviour
             callback(((DownloadHandlerTexture)request.downloadHandler).texture);
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    // public IEnumerator TryUpdateUsernameAuth(string _username)
-    // {
-    //     //Create a user profile and set the username
-    //     UserProfile profile = new UserProfile { DisplayName = _username };
-    //
-    //     //Call the Firebase auth update user profile function passing the profile with the username
-    //     var ProfileTask = User.UpdateUserProfileAsync(profile);
-    //     //Wait until the task completes
-    //     yield return new WaitUntil(predicate: () => ProfileTask.IsCompleted);
-    //
-    //     if (ProfileTask.Exception != null)
-    //     {
-    //         Debug.LogWarning(message: $"Failed to register task with {ProfileTask.Exception}");
-    //     }
-    //     else
-    //     {
-    //         //Auth username is now updated
-    //     }        
-    // }
-   
-    // public IEnumerator TryLoadImage(string MediaUrl, System.Action<Texture> callback)
-    // {
-    //     UnityWebRequest request = UnityWebRequestTexture.GetTexture(MediaUrl); //Create a request
-    //     yield return request.SendWebRequest(); //Wait for the request to complete
-    //     if (request.isNetworkError || request.isHttpError)
-    //     {
-    //         Debug.Log(request.error);
-    //     }
-    //     else
-    //     {
-    //         callback(((DownloadHandlerTexture)request.downloadHandler).texture);
-    //     }
-    // }
-    
-
-    
-    // public IEnumerator TryDownloadImage(string MediaUrl, System.Action<Texture> callback)
-    // {
-    //     
-    // }
-
     private IEnumerator TryUploadImage(string MediaUrl, System.Action<Texture> callback)
     {
         
@@ -458,11 +395,10 @@ public class FirebaseManager : MonoBehaviour
             callback(((DownloadHandlerTexture)request.downloadHandler).texture);
         }
     }
-
     private IEnumerator LoadUserData()
     {
         //Get the currently logged in user data
-        var DBTask = DBreference.Child("users").Child(User.UserId).GetValueAsync();
+        var DBTask = DBref.Child("users").Child(User.UserId).GetValueAsync();
 
         yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
 
@@ -479,12 +415,21 @@ public class FirebaseManager : MonoBehaviour
         {
             //Data has been retrieved
             DataSnapshot snapshot = DBTask.Result;
-
             // xpField.text = snapshot.Child("xp").Value.ToString();
             // killsField.text = snapshot.Child("kills").Value.ToString();
             // deathsField.text = snapshot.Child("deaths").Value.ToString();
         }
     }
-
-    
+    private void DeleteFile(String _location)
+    {
+        storageRef = storageRef.Child(_location);
+        storageRef.DeleteAsync().ContinueWithOnMainThread(task => {
+            if (task.IsCompleted) {
+                Debug.Log("File deleted successfully.");
+            }
+            else {
+                // Uh-oh, an error occurred!
+            }
+        });
+    }
 }
