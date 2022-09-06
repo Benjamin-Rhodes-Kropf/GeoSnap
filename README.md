@@ -47,14 +47,20 @@
 -fixed logout button to go to 'LockScreenHome' screen
 -Refactored Firebase Manager
 -moved screen manager scripts into separate folder
+-added loading animations
 
 TO DO:
+-add loading transition
 -make better looking validation (highlight box ahd give message)
 -fix text box font and type
 -fix firebase loading error
 -fully build out color manager
 -change dependancies json so that the project works on download without manual import
 -integrate mapbox SDK
+-mapbox water shader
+-add mapbox pins
+-add mapbox pin shader
+-add mapbox loader
 -Loading anim
 -Make image profile picker able to acces camera roll cross compatible
 -Make Profile Photo upload and display

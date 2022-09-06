@@ -73,7 +73,7 @@ public class FirebaseManager : MonoBehaviour
     private IEnumerator TryAutoLogin()
     {
         //Todo: figure out which wait until to use...
-        yield return new WaitForSeconds(0.4f); //has to wait until firebase async task is finished... (is there something better?)
+        yield return new WaitForSeconds(4.4f); //has to wait until firebase async task is finished... (is there something better?)
         String savedUsername = PlayerPrefs.GetString("Username");
         String savedPassword = PlayerPrefs.GetString("Password");
         if (savedUsername != "null" && savedPassword != "null")
