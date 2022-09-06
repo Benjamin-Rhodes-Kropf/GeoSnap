@@ -48,6 +48,10 @@
 -Refactored Firebase Manager
 -moved screen manager scripts into separate folder
 -added loading animations
+-added new font
+-aded color management system
+-changed onboarding screen
+-added UI radius thing
 
 TO DO:
 -add loading transition

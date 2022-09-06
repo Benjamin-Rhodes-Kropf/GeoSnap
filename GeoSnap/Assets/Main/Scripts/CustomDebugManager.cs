@@ -13,9 +13,6 @@ public class CustomDebugManager : MonoBehaviour
     public bool showDebugText;
     public bool showDebugButtons;
     
-    [Header("Colors")]
-    [SerializeField] private Color buttonBgColor;
-    [SerializeField] private Color hudForegroundColor;
 
     private void Awake()
     {
